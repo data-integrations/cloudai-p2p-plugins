@@ -75,7 +75,7 @@ public abstract class AbstractAction<T> extends Action {
   protected abstract List<T> listFilePaths(T source) throws IOException;
 
   /**
-   * Returns a list of file paths that need to be copied to the destination, given a source location.
+   * Returns the relative path of a file/object to a source location.
    * For example if this function is called with source=/root/dir, path=/root/dir/file.txt, it will return file.txt.
    *
    * @param source the source location from which files need to be copied.
