@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloudai.p2p;
+package io.cdap.plugin.cloudai.p2p.action;
 
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.WriteChannel;

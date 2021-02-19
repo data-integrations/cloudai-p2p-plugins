@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloudai.p2p;
+package io.cdap.plugin.cloudai.p2p.common;
 
 import com.google.cloud.ServiceOptions;
 import com.google.common.base.Strings;

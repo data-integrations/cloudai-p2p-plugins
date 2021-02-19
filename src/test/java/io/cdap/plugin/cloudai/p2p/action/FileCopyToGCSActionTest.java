@@ -14,7 +14,7 @@
  * the License.
  */
 
-package io.cdap.plugin.cloudai.p2p;
+package io.cdap.plugin.cloudai.p2p.action;
 
 import io.cdap.cdap.etl.api.validation.CauseAttributes;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
@@ -38,7 +38,6 @@ public class FileCopyToGCSActionTest {
     ValidationFailure failure = collector.getValidationFailures().get(0);
     Assert.assertEquals(AbstractActionConfig.FILE_REGEX,
                         failure.getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
-
   }
 
   @Test
@@ -52,6 +51,5 @@ public class FileCopyToGCSActionTest {
     ValidationFailure failure = collector.getValidationFailures().get(0);
     Assert.assertEquals(AbstractActionConfig.NUM_THREADS,
                         failure.getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
-
   }
 }

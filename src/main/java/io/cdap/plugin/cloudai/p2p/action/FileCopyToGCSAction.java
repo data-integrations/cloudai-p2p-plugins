@@ -15,7 +15,7 @@
  */
 
 // If you change this, make sure to update the exported-packages variable in the pom.xml file
-package io.cdap.plugin.cloudai.p2p;
+package io.cdap.plugin.cloudai.p2p.action;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.cdap.cdap.api.annotation.Description;

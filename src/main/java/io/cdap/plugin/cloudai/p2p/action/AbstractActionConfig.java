@@ -14,12 +14,13 @@
  * the License.
  */
 
-package io.cdap.plugin.cloudai.p2p;
+package io.cdap.plugin.cloudai.p2p.action;
 
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.etl.api.FailureCollector;
+import io.cdap.plugin.cloudai.p2p.common.GCPConfig;
 
 import java.io.File;
 import java.util.regex.Pattern;
