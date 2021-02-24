@@ -17,12 +17,9 @@
 // If you change this, make sure to update the exported-packages variable in the pom.xml file
 package io.cdap.plugin.cloudai.p2p.action;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.cdap.cdap.api.annotation.Description;
-import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
-import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.action.Action;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -41,8 +38,8 @@ import java.util.List;
  */
 @Plugin(type = Action.PLUGIN_TYPE)
 @Name(FileCopyToGCSAction.PLUGIN_NAME)
-@Description("This example action plugin should give you a good starting point for building your own plugin.")
-public class FileCopyToGCSAction extends AbstractAction<Path> {
+@Description("This action plugin  allows users to copy files from an HDFS path to a GCS bucket.")
+public final class FileCopyToGCSAction extends AbstractGCSCopyAction<Path> {
   public static final String PLUGIN_NAME = "FileCopyToGCSAction";
 
   private final FileCopyToGCSActionConfig config;
@@ -58,7 +55,6 @@ public class FileCopyToGCSAction extends AbstractAction<Path> {
 
   @Override
   protected List<Path> listFilePaths(Path path) throws IOException {
-    FileSystem fileSystem = path.getFileSystem(new Configuration());
     RemoteIterator<LocatedFileStatus> iter = fileSystem.listFiles(path, true);
     List<Path> filePaths = new ArrayList<>();
     while (iter.hasNext()) {
@@ -74,7 +70,7 @@ public class FileCopyToGCSAction extends AbstractAction<Path> {
   }
 
   @Override
-  protected void runInternal() throws IOException {
+  protected void init() throws IOException {
     source = new Path("file", "", config.sourcePath);
     fileSystem = source.getFileSystem(new Configuration());
   }
@@ -89,26 +85,5 @@ public class FileCopyToGCSAction extends AbstractAction<Path> {
     return fileSystem.open(path);
   }
 
-  /**
-   * Config class that contains all properties necessary to execute a file copy to GCS.
-   */
-  public static class FileCopyToGCSActionConfig extends AbstractActionConfig {
-    @Description("The full HDFS path of the file or directory that is to be copied. In the case of a directory, if " +
-      "fileRegex is set, then only files in the source directory matching the wildcard regex will be copied. " +
-      "Otherwise, all files in the directory will be moved.")
-    @Macro
-    protected String sourcePath;
-
-    @VisibleForTesting
-    FileCopyToGCSActionConfig(String sourcePath, String destPath, String fileRegex, Integer numThreads) {
-      super(destPath, fileRegex, numThreads);
-      this.sourcePath = sourcePath;
-    }
-
-    @Override
-    public void validate(FailureCollector failureCollector) {
-      super.validate(failureCollector);
-    }
-  }
 }
 

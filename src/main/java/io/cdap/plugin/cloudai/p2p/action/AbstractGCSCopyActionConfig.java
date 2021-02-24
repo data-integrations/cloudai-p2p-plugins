@@ -17,39 +17,44 @@
 package io.cdap.plugin.cloudai.p2p.action;
 
 import io.cdap.cdap.api.annotation.Description;
-import io.cdap.cdap.api.annotation.Macro;
 import io.cdap.cdap.api.annotation.Name;
+import io.cdap.cdap.api.plugin.PluginConfig;
 import io.cdap.cdap.etl.api.FailureCollector;
-import io.cdap.plugin.cloudai.p2p.common.GCPConfig;
 
-import java.io.File;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /**
  * Base class for action plugin configuration.
  */
-public class AbstractActionConfig extends GCPConfig {
+public class AbstractGCSCopyActionConfig extends PluginConfig {
   // Constants for property names
   protected static final String FILE_REGEX = "fileRegex";
   protected static final int MIN_NUM_THREADS = 1;
+  protected static final int NUM_THREADS_DEFAULT = 1;
   protected static final String NUM_THREADS = "numThreads";
+  protected static final String CHUNK_SIZE = "chunkSize";
+  protected static final int CHUNK_SIZE_DEFAULT = 65536;
   protected static final String GCS_SCHEME = "gs://";
 
   @Description("The GCS bucket into which objects will be copied.")
-  @Macro
   protected String destPath;
 
   @Description("Wildcard regular expression to filter the files in the source directory that will be copied")
   @Nullable
-  @Macro
   protected String fileRegex;
 
   @Name(NUM_THREADS)
   @Description("Specifies the number of parallel tasks to use when executing the copy operation; defaults to 1.")
   @Nullable
-  @Macro
   protected Integer numThreads;
+
+  @Name(CHUNK_SIZE)
+  @Description("Specifies the size of the intermediate buffer used to copy data from source to destination," +
+    "defaults to 65536.")
+  @Nullable
+  protected Integer chunkSize;
+
 
   // Validate plugin configuration
   public void validate(FailureCollector collector) {
@@ -62,23 +67,16 @@ public class AbstractActionConfig extends GCPConfig {
       }
     }
 
-    if (!containsMacro(NUM_THREADS) && numThreads < AbstractActionConfig.MIN_NUM_THREADS) {
+    if (!containsMacro(NUM_THREADS) && numThreads != null && numThreads < AbstractGCSCopyActionConfig.MIN_NUM_THREADS) {
       collector.addFailure("Invalid number of parallel tasks.",
                            "Number of parallel tasks must be greater than zero.")
         .withConfigProperty(NUM_THREADS);
     }
 
-    String serviceAccount = getServiceAccount();
-    if (!(containsMacro(NAME_SERVICE_ACCOUNT_FILE_PATH) || containsMacro(NAME_SERVICE_ACCOUNT_JSON)) &&
-      serviceAccount != null) {
-      if (isServiceAccountFilePath()) {
-        File serviceAccountFile = new File(serviceAccount);
-        if (!serviceAccountFile.exists()) {
-          collector.addFailure(String.format("Service account file '%s' does not exist.", serviceAccount),
-                               "Ensure the service account file is available on the local filesystem.")
-            .withConfigProperty(NAME_SERVICE_ACCOUNT_FILE_PATH);
-        }
-      }
+    if (!containsMacro(CHUNK_SIZE) && chunkSize != null && chunkSize <= 0) {
+      collector.addFailure("Invalid chunk size.",
+                           "Chunk size must be greater than zero.")
+        .withConfigProperty(CHUNK_SIZE);
     }
   }
 
@@ -87,12 +85,17 @@ public class AbstractActionConfig extends GCPConfig {
   }
 
   public Integer getNumThreads() {
-    return numThreads;
+    return numThreads != null ? numThreads : NUM_THREADS_DEFAULT;
   }
 
-  AbstractActionConfig(String destPath, String fileRegex, Integer numThreads) {
+  public Integer getChunkSize() {
+    return chunkSize != null ? chunkSize : CHUNK_SIZE_DEFAULT;
+  }
+
+  AbstractGCSCopyActionConfig(String destPath, String fileRegex, Integer numThreads, Integer chunkSize) {
     this.destPath = destPath;
     this.fileRegex = fileRegex;
     this.numThreads = numThreads;
+    this.chunkSize = chunkSize;
   }
 }

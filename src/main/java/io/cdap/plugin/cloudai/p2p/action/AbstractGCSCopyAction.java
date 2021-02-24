@@ -16,12 +16,6 @@
 
 package io.cdap.plugin.cloudai.p2p.action;
 
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.WriteChannel;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.cdap.cdap.etl.api.FailureCollector;
@@ -32,12 +26,8 @@ import io.cdap.cdap.etl.api.action.ActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -52,19 +42,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Base class for action plugins that write to GCS.
  */
-public abstract class AbstractAction<T> extends Action {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractAction.class);
+public abstract class AbstractGCSCopyAction<T> extends Action {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractGCSCopyAction.class);
 
   protected T source;
 
-  protected AbstractAction() {
+  protected AbstractGCSCopyAction() {
   }
 
   /**
-   * This function is called in {@link AbstractAction#run} before doing the copy operation.
+   * This function is called in {@link AbstractGCSCopyAction#run} before doing the copy operation.
    * Any initiation steps can be done here.
    */
-  protected abstract void runInternal() throws IOException;
+  protected abstract void init() throws IOException;
 
   /**
    * Returns a list of  paths that need to be copied to the destination, given a source location.
@@ -97,7 +87,7 @@ public abstract class AbstractAction<T> extends Action {
    *
    * @return plugin configuration.
    */
-  protected abstract AbstractActionConfig getConfig();
+  protected abstract AbstractGCSCopyActionConfig getConfig();
 
   @Override
   public void configurePipeline(PipelineConfigurer pipelineConfigurer) throws IllegalArgumentException {
@@ -108,18 +98,19 @@ public abstract class AbstractAction<T> extends Action {
 
   @Override
   public void run(ActionContext context) throws Exception {
-    runInternal();
+    init();
     List<T> filePaths = listFilePaths(source);
     copyFiles(filePaths);
   }
 
   protected void copyFiles(List<T> filePaths) throws InterruptedException {
     if (filePaths.size() == 0) {
-      LOG.warn("Not moving any files from source {}", source.toString());
+      LOG.warn("No files found in source {}. Please make sure there are files available in the source and file " +
+               "filters are configured correctly.", source.toString());
       return;
     }
 
-    AbstractActionConfig config = getConfig();
+    AbstractGCSCopyActionConfig config = getConfig();
     // Copies the files in a multithreaded way
     CountDownLatch executorTerminateLatch = new CountDownLatch(1);
     ExecutorService executorService = createExecutor(config.getNumThreads(), executorTerminateLatch);
@@ -134,7 +125,7 @@ public abstract class AbstractAction<T> extends Action {
           public String call() throws Exception {
             String relativePath = getRelativePath(source, path);
             InputStream is = getInputStream(path);
-            return copyToGcs(is, relativePath);
+            return GCSUtils.copyToGcs( is, relativePath, getConfig());
           }
         });
       }
@@ -174,56 +165,5 @@ public abstract class AbstractAction<T> extends Action {
         terminationLatch.countDown();
       }
     };
-  }
-
-  /**
-   * Copies the contents of an InputStream to a GCS bucket.
-   *
-   * @param in an {@link InputStream} from which to read
-   * @param blobName GCS blob to which the InputStream is written
-   * @return name of the blob that was written.
-   */
-  private String copyToGcs(InputStream in, String blobName) throws IOException {
-    AbstractActionConfig config = getConfig();
-    String project = config.getProject();
-    String serviceAccount = config.getServiceAccount();
-    Boolean isServiceAccountFilePath = true;
-    StorageOptions.Builder builder = StorageOptions.newBuilder().setProjectId(project);
-    if (serviceAccount != null) {
-      builder.setCredentials(loadServiceAccountCredentials(serviceAccount, isServiceAccountFilePath));
-    }
-    Storage storage = builder.build().getService();
-    BlobId blobId = BlobId.of(config.getDestPath(), blobName);
-    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-    // Write data in chunks using resumable upload.
-    try (WriteChannel writer = storage.writer(blobInfo)) {
-      byte[] buffer = new byte[1024];
-      int limit;
-      while ((limit = in.read(buffer)) >= 0) {
-        try {
-          writer.write(ByteBuffer.wrap(buffer, 0, limit));
-        } catch (Exception e) {
-          LOG.warn("Failed to write to blob {}", blobName, e);
-        }
-      }
-    }
-    return blobName;
-  }
-
-  private ServiceAccountCredentials loadServiceAccountCredentials(String path) throws IOException {
-    File credentialsPath = new File(path);
-    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-      return ServiceAccountCredentials.fromStream(serviceAccountStream);
-    }
-  }
-
-  private ServiceAccountCredentials loadServiceAccountCredentials(String content,
-                                                                  boolean isServiceAccountFilePath)
-    throws IOException {
-    if (isServiceAccountFilePath) {
-      return loadServiceAccountCredentials(content);
-    }
-    InputStream jsonInputStream = new ByteArrayInputStream(content.getBytes());
-    return ServiceAccountCredentials.fromStream(jsonInputStream);
   }
 }

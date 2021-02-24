@@ -14,14 +14,6 @@
         },
         {
           "widget-type": "textbox",
-          "label": "Project ID",
-          "name": "project",
-          "widget-attributes" : {
-            "default": "auto-detect"
-          }
-        },
-        {
-          "widget-type": "textbox",
           "label": "Destination Bucket",
           "name": "destPath"
         },
@@ -29,74 +21,21 @@
           "widget-type": "textbox",
           "label": "Wildcard",
           "name": "fileRegex"
-        },
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "properties": [
         {
           "widget-type": "textbox",
           "label": "Number of parallel tasks",
           "name": "numThreads"
-        }
-      ]
-    },
-    {
-      "label" : "Credentials",
-      "properties" : [
-        {
-          "name": "serviceAccountType",
-          "label": "Service Account Type",
-          "widget-type": "radio-group",
-          "widget-attributes": {
-            "layout": "inline",
-            "default": "filePath",
-            "options": [
-              {
-                "id": "filePath",
-                "label": "File Path"
-              },
-              {
-                "id": "JSON",
-                "label": "JSON"
-              }
-            ]
-          }
         },
         {
           "widget-type": "textbox",
-          "label": "Service Account File Path",
-          "name": "serviceFilePath",
-          "widget-attributes" : {
-            "default": "auto-detect"
-          }
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Service Account JSON",
-          "name": "serviceAccountJSON"
-        }
-      ]
-    }
-  ],
-  "filters": [
-    {
-      "name": "ServiceAuthenticationTypeFilePath",
-      "condition": {
-        "expression": "serviceAccountType == 'filePath'"
-      },
-      "show": [
-        {
-          "type": "property",
-          "name": "serviceFilePath"
-        }
-      ]
-    },
-    {
-      "name": "ServiceAuthenticationTypeJSON",
-      "condition": {
-        "expression": "serviceAccountType == 'JSON'"
-      },
-      "show": [
-        {
-          "type": "property",
-          "name": "serviceAccountJSON"
+          "label": "Chunk Size",
+          "name": "chunkSize"
         }
       ]
     }

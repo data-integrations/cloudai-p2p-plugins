@@ -24,9 +24,7 @@ Properties
 | **Destination Bucket** | **Y** | None | The GCS bucket into which objects will be copied. |
 | **Wildcard** | **N** | None | Wildcard regular expression to filter the files in the source directory. |
 | **Number of parallel tasks** | **N** | 1 | Number of parallel tasks to use when executing the copy operation. |
-| **Destination Bucket** | **Y** | None | The GCS bucket into which objects will be copied. |
-| **Service Account File Path** | **N** | auto-detect | Path on the local file system of the service account key. |
-| **Service Account  JSON** | **N** | None | Contents of the service account JSON file. |
+| **Chunk size** | **N** | 65536 | Size of the intermediate buffer used to copy data from source to destination. |
 
 Example
 -----------

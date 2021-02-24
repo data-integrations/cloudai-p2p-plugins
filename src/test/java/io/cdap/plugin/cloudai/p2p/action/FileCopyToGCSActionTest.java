@@ -29,27 +29,41 @@ public class FileCopyToGCSActionTest {
 
   @Test
   public void testValidateRegex() throws Exception {
-    FileCopyToGCSAction.FileCopyToGCSActionConfig config = new FileCopyToGCSAction.FileCopyToGCSActionConfig(
+    FileCopyToGCSActionConfig config = new FileCopyToGCSActionConfig(
       "src", "dst",
-      "*", 1);
+      "*", null, null);
     MockFailureCollector collector = new MockFailureCollector();
     config.validate(collector);
     Assert.assertEquals(1, collector.getValidationFailures().size());
     ValidationFailure failure = collector.getValidationFailures().get(0);
-    Assert.assertEquals(AbstractActionConfig.FILE_REGEX,
+    Assert.assertEquals(AbstractGCSCopyActionConfig.FILE_REGEX,
                         failure.getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
   }
 
   @Test
   public void testNumThreads() throws Exception {
-    FileCopyToGCSAction.FileCopyToGCSActionConfig config = new FileCopyToGCSAction.FileCopyToGCSActionConfig(
+    FileCopyToGCSActionConfig config = new FileCopyToGCSActionConfig(
       "src", "dst",
-      ".*", -1);
+      ".*", -1, 1024);
     MockFailureCollector collector = new MockFailureCollector();
     config.validate(collector);
     Assert.assertEquals(1, collector.getValidationFailures().size());
     ValidationFailure failure = collector.getValidationFailures().get(0);
-    Assert.assertEquals(AbstractActionConfig.NUM_THREADS,
+    Assert.assertEquals(AbstractGCSCopyActionConfig.NUM_THREADS,
                         failure.getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
   }
+
+  @Test
+  public void testChunkSize() throws Exception {
+    FileCopyToGCSActionConfig config = new FileCopyToGCSActionConfig(
+      "src", "dst",
+      ".*", 1, 0);
+    MockFailureCollector collector = new MockFailureCollector();
+    config.validate(collector);
+    Assert.assertEquals(1, collector.getValidationFailures().size());
+    ValidationFailure failure = collector.getValidationFailures().get(0);
+    Assert.assertEquals(AbstractGCSCopyActionConfig.CHUNK_SIZE,
+                        failure.getCauses().get(0).getAttribute(CauseAttributes.STAGE_CONFIG));
+  }
+
 }
