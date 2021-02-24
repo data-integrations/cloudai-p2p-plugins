@@ -23,7 +23,6 @@ import org.mockito.Mockito;
 
 import static org.mockito.Matchers.any;
 
-
 public class FileCopyToGCSActionTest {
   @Test
   public void testCopy() throws Exception {

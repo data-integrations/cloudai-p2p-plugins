@@ -57,7 +57,7 @@ public abstract class AbstractGCSCopyAction<T> extends Action {
   protected abstract void init() throws IOException;
 
   /**
-   * Returns a list of  paths that need to be copied to the destination, given a source location.
+   * Returns a list of paths that need to be copied to the destination, given a source location.
    *
    * @param source the source location from which files/objects need to be copied.
    * @return a list of  paths that need to be copied.
