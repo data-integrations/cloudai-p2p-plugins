@@ -75,7 +75,7 @@ public abstract class AbstractGCSCopyAction<T> extends Action {
   protected abstract String getRelativePath(T source, T path);
 
   /**
-   * Returns a list of  paths that need to be copied to the destination, given a source location.
+   * Returns an InputStream for the given path.
    *
    * @param path path of a file/object.
    * @return {@link InputStream} for {@code path}.
