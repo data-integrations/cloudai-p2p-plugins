@@ -16,7 +16,6 @@
 
 package io.cdap.plugin.cloudai.p2p.action;
 
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.BlobId;
@@ -26,8 +25,6 @@ import com.google.cloud.storage.StorageOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -68,12 +65,5 @@ public final class GCSUtils {
       }
     }
     return blobName;
-  }
-
-  private static ServiceAccountCredentials loadServiceAccountCredentials(String path) throws IOException {
-    File credentialsPath = new File(path);
-    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-      return ServiceAccountCredentials.fromStream(serviceAccountStream);
-    }
   }
 }
