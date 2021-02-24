@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "spec-version": "1.0"
+  },
+  "display-name" : "Copy File to GCS",
+  "configuration-groups": [
+    {
+      "label": "Properties",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Source Path",
+          "name": "sourcePath"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Destination Bucket",
+          "name": "destPath"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Wildcard",
+          "name": "fileRegex"
+        }
+      ]
+    },
+    {
+      "label": "Advanced",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Number of parallel tasks",
+          "name": "numThreads"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Chunk Size",
+          "name": "chunkSize"
+        }
+      ]
+    }
+  ],
+  "outputs": []
+}
