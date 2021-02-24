@@ -123,9 +123,7 @@ public abstract class AbstractGCSCopyAction<T> extends Action {
         completionService.submit(new Callable<String>() {
           @Override
           public String call() throws Exception {
-            String relativePath = getRelativePath(source, path);
-            InputStream is = getInputStream(path);
-            return GCSUtils.copyToGcs( is, relativePath, getConfig());
+            return copyToGCS(path);
           }
         });
       }
@@ -147,6 +145,12 @@ public abstract class AbstractGCSCopyAction<T> extends Action {
       executorService.shutdownNow();
       executorTerminateLatch.await();
     }
+  }
+
+  String copyToGCS(T path) throws IOException {
+    String relativePath = getRelativePath(source, path);
+    InputStream is = getInputStream(path);
+    return GCSUtils.copyToGCS(is, relativePath, getConfig());
   }
 
   /**

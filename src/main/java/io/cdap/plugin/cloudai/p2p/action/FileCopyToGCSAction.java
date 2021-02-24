@@ -39,11 +39,11 @@ import java.util.List;
 @Plugin(type = Action.PLUGIN_TYPE)
 @Name(FileCopyToGCSAction.PLUGIN_NAME)
 @Description("This action plugin  allows users to copy files from an HDFS path to a GCS bucket.")
-public final class FileCopyToGCSAction extends AbstractGCSCopyAction<Path> {
+public class FileCopyToGCSAction extends AbstractGCSCopyAction<Path> {
   public static final String PLUGIN_NAME = "FileCopyToGCSAction";
 
   private final FileCopyToGCSActionConfig config;
-  private FileSystem fileSystem;
+  FileSystem fileSystem;
 
   public FileCopyToGCSAction(FileCopyToGCSActionConfig actionConfig) {
     this.config = actionConfig;
@@ -62,7 +62,7 @@ public final class FileCopyToGCSAction extends AbstractGCSCopyAction<Path> {
       if (lfs.isDirectory()) {
         continue;
       }
-      if (lfs.getPath().toString().matches(config.fileRegex)) {
+      if (config.fileRegex == null || lfs.getPath().toString().matches(config.fileRegex)) {
         filePaths.add(lfs.getPath());
       }
     }

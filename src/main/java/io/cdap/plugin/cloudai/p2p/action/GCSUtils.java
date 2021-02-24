@@ -48,7 +48,7 @@ public final class GCSUtils {
    * @param blobName GCS blob to which the InputStream is written
    * @return name of the blob that was written.
    */
-  public static String copyToGcs(InputStream in, String blobName, AbstractGCSCopyActionConfig config) throws IOException {
+  public static String copyToGCS(InputStream in, String blobName, AbstractGCSCopyActionConfig config) throws IOException {
     String project = ServiceOptions.getDefaultProjectId();
     StorageOptions.Builder builder = StorageOptions.newBuilder().setProjectId(project);
     Storage storage = builder.build().getService();
